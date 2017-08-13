@@ -1,2 +1,2 @@
 # Functions
-Usefull functions for several purposes
+Usefull functions for several purposes.
