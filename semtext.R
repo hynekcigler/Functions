@@ -1,4 +1,4 @@
-
+## These functions extracts fit indices from lavaan object and print them as a text. ##
 
 semtext <- function(fit) {
   fitvalue <- fitMeasures(fit, fit.measures = c("chisq.scaled", "df.scaled", "pvalue.scaled", "tli.scaled", "rmsea.scaled", "rmsea.ci.lower.scaled", "rmsea.ci.upper.scaled", "rmsea.pvalue.scaled", "srmr"))
