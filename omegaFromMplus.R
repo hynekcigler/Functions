@@ -5,7 +5,9 @@ omegaFromMplus <- function(model, weight=NULL) {
   ## WARNING - works only with one factor CFA
   
   require(MplusAutomation)
-  model <- readModels(model)
+  if ((class(model) != "mplus.model")[1]) {
+    model <- readModels(model)  
+  }
   items <- strsplit(model$input$variable$usevariables, split=" ")[[1]] ## item labels
   n.items <- length(items) ## number of items
   groups <- names(table(model$parameters$unstandardized$Group)) ## group labels
