@@ -2,7 +2,19 @@
 ### hynek.cigler@mail.muni.cz | http://psych.fss.muni.cz   ###
 
 
-pcm.plot <- function(theta=seq(-5,5, by=.001), b=0, thresholds=c(-1,1), show="none", ylim=NULL) {
+pcm.plot <- function(theta=seq(-5,5, by=.001), b=0, thresholds=c(-1,1), show="none", ylim=NULL, 
+                     color = T, from=0, to=.6) {
+  ## theta = just a vector for subsequent ability values, for which the diagram should be plotted
+  ## b = item difficulty
+  ## thresholds = vector of thresholds. Its sum has to be 0.
+  ## show = type of plot
+  ##        trace - traceline (item cattegory characteristic curves)
+  ##        score - scoring function (expected raw score)
+  ##        info - information function (both cattegories and the whole item)
+  ##        color - if TRUE, plot colors; if FALSE, use gray scale
+  ##        from, to - parameters if color=TRUE
+  
+  
   if(abs(sum(thresholds)) >.0000001) {
     stop("Sum of thresholds is not zero!")
   }
@@ -74,30 +86,62 @@ pcm.plot <- function(theta=seq(-5,5, by=.001), b=0, thresholds=c(-1,1), show="no
   
   # Plots --------------------------------------------------------------------
   
-  cols <- rainbow(ncol(pred))
+  if (isTRUE(color)) {
+    cols <- rainbow(ncol(pred))
+  } else {
+    cols <- gray(seq(from, to, length.out = ncol(pred)))
+  }
+  
   
   if(show == "trace") {
     plot(theta, pred[,1], type = "l", lwd=3, col=cols[1], xlab="trait", ylab = "probability", main="Category probability functions")
     for (i in c(2:ncol(pred))) {
       lines(theta, pred[,i], type = "l", lwd=3, col=cols[i])
     }
-    abline(v=half, col="green", lty=2)
-    abline(v=rasch, col="blue", lty=2)
-    legend("right", legend=c(c(1:ncol(pred))-1, "half-point", "Rasch-Andrich"), col=c(cols, "green", "blue"), 
-           lwd=c(rep(3, ncol(pred)), 1, 1), lty=c(rep(1, ncol(pred)), 2, 2), inset=.01, bg = "white")
+    if(isTRUE(color)) {
+      abline(v=half, col="green", lty=2)
+      abline(v=rasch, col="blue", lty=2)
+    } else {
+      abline(v=half, col="black", lty=3)
+      abline(v=rasch, col="black", lty=4)
+    }
+    if(isTRUE(color)) {
+      legend("right", legend=c(c(1:ncol(pred))-1, "half-point", "Rasch-Andrich"), col=c(cols, "green", "blue"), 
+             lwd=c(rep(3, ncol(pred)), 1, 1), lty=c(rep(1, ncol(pred)), 2, 2), inset=.01, bg = "white")
+      
+    } else {
+      legend("right", legend=c(c(1:ncol(pred))-1, "half-point", "Rasch-Andrich"), col=c(cols, "black", "black"), 
+             lwd=c(rep(3, ncol(pred)), 1, 1), lty=c(rep(1, ncol(pred)), 3, 4), inset=.01, bg = "white")
+      
+    }
   } else if (show == "score") {
     plot(theta, score, type = "l", lwd=3, col="black", xlab="trait", ylab = "expected score", main="Expected score function")
     # abline(v=half, lty=2, col="gray")
     for (i in c(1:length(half))) {
-      # half-tresholds
-      lines(c(half[i], half[i]), c(-100, i-.5), col="green", lty=2)
-      lines(c(-100, half[i]), c(i-.5, i-.5), col="green", lty=2)
+      if(isTRUE(color)) {
+        # half-tresholds
+        lines(c(half[i], half[i]), c(-100, i-.5), col="green", lty=2)
+        lines(c(-100, half[i]), c(i-.5, i-.5), col="green", lty=2)
+        
+        # Rasch-Andrich tresholds
+        lines(c(rasch[i], rasch[i]), c(-100, rasch_sc[i]), col="blue", lty=2)
+        lines(c(-100, rasch[i]), c(rasch_sc[i], rasch_sc[i]), col="blue", lty=2)
+      } else {
+        # half-tresholds
+        lines(c(half[i], half[i]), c(-100, i-.5), col="black", lty=3)
+        lines(c(-100, half[i]), c(i-.5, i-.5), col="black", lty=3)
+        
+        # Rasch-Andrich tresholds
+        lines(c(rasch[i], rasch[i]), c(-100, rasch_sc[i]), col="black", lty=4)
+        lines(c(-100, rasch[i]), c(rasch_sc[i], rasch_sc[i]), col="black", lty=4)
+      }
       
-      # Rasch-Andrich tresholds
-      lines(c(rasch[i], rasch[i]), c(-100, rasch_sc[i]), col="blue", lty=2)
-      lines(c(-100, rasch[i]), c(rasch_sc[i], rasch_sc[i]), col="blue", lty=2)
     }
-    legend("topleft", c("Rasch half-point tresholds", "Rasch-Andrich tresholds"), col=c("green", "blue"), lty=2, inset = .01, bg = "white")
+    if(isTRUE(color)) {
+      legend("topleft", c("Rasch half-point tresholds", "Rasch-Andrich tresholds"), col=c("green", "blue"), lty=2, inset = .01, bg = "white")
+    } else {
+      legend("topleft", c("Rasch half-point tresholds", "Rasch-Andrich tresholds"), col="black", lty=c(3,4), inset = .01, bg = "white")
+    }
   } else if (show == "info") {
     plot(theta, suminfo, type="l", lwd=3, col="black", ylim=ylim, xlab="trait", ylab="information", main="Information functions")
     for (i in c(1:ncol(pred))) {
@@ -124,13 +168,13 @@ pcm.plot(theta=seq(-5,5,by=.001), b=0, thresholds = a, show = "trace")
 pcm.plot(theta=seq(-5,5,by=.001), b=0, thresholds = a, show = "score")
 pcm.plot(theta=seq(-5,5,by=.001), b=0, thresholds = a, show = "info", ylim=c(0,.9))
 
-
+## example 2, gray scale
 b <- c(-1, 1)
 windows(width = 12, height=4.5)
 layout(t(c(1:3)))
-pcm.plot(theta=seq(-5,5,by=.001), b=0, thresholds = b, show = "trace")
-pcm.plot(theta=seq(-5,5,by=.001), b=0, thresholds = b, show = "score")
-pcm.plot(theta=seq(-5,5,by=.001), b=0, thresholds = b, show = "info")
+pcm.plot(theta=seq(-5,5,by=.001), b=0, thresholds = b, show = "trace", color=F)
+pcm.plot(theta=seq(-5,5,by=.001), b=0, thresholds = b, show = "score", color=F)
+pcm.plot(theta=seq(-5,5,by=.001), b=0, thresholds = b, show = "info", color=F)
 
 
 
