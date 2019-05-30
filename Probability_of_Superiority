@@ -3,6 +3,9 @@ psup <- function(d=NULL, CL=NULL, plot=F, AUC=F) {
     CL <- pnorm(d/sqrt(2))
     result <- c(CL=CL)
   } else {
+    if (CL > 1 | CL < 0) {
+      stop("CL has to be within <0, 1> interval.")
+    }
     d <- qnorm(CL)*sqrt(2)
     result <- c(d=d)
   }
