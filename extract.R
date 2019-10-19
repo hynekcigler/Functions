@@ -1,4 +1,4 @@
-semtext <- function(fit, x2=T, cfi=F, tli=T, rmsea=T, rmsea.ci=T, srmr=T, bic=F,
+semtext <- function(fit, x2=T, cfi=F, tli=T, rmsea=T, rmsea.ci=T, srmr=T, bic=F, aic=F,
                     clipboard=T, type = "scaled", srmr.type = "srmr", output="text",
                     modelnames=NULL,
                     sep = "\t", dec=",") {
@@ -39,6 +39,7 @@ semtext <- function(fit, x2=T, cfi=F, tli=T, rmsea=T, rmsea.ci=T, srmr=T, bic=F,
       srmr <- srmr
     } else {srmr <- srmr.type}
     if(bic == F) {bic <- NULL} else {bic <- "bic"}
+    if(aic == F) {aic <- NULL} else {aic <- "aic"}
   }
   else if (type == "scaled") {
     if(x2 == F) {x2 <- NULL} else {x2 <- c("chisq.scaled", "df.scaled", "pvalue.scaled")}
@@ -52,6 +53,7 @@ semtext <- function(fit, x2=T, cfi=F, tli=T, rmsea=T, rmsea.ci=T, srmr=T, bic=F,
       srmr <- srmr
     } else {srmr <- srmr.type}
     if(bic == F) {bic <- NULL} else {bic <- "bic"}
+    if(aic == F) {aic <- NULL} else {aic <- "aic"}
   } else {
     if(x2 == F) {x2 <- NULL} else {x2 <- c("chisq", "df", "pvalue")}
     if(cfi == F) {cfi <- NULL} else {cfi <- "cfi"}
@@ -64,6 +66,7 @@ semtext <- function(fit, x2=T, cfi=F, tli=T, rmsea=T, rmsea.ci=T, srmr=T, bic=F,
       srmr <- srmr
     } else {srmr <- srmr.type}
     if(bic == F) {bic <- NULL} else {bic <- "bic"}
+    if(aic == F) {aic <- NULL} else {aic <- "aic"}
   }
   
   ## controls
@@ -105,8 +108,11 @@ semtext <- function(fit, x2=T, cfi=F, tli=T, rmsea=T, rmsea.ci=T, srmr=T, bic=F,
       if (!is.null(bic)) {
         bic.out <- paste0("BIC = ", round(fitvalue1[bic], 1))
       } else {bic.out <- bic}
+      if (!is.null(aic)) {
+        aic.out <- paste0("AIC = ", round(fitvalue1[aic], 1))
+      } else {aic.out <- aic}
       
-      result1 <- paste(c(x2.out, bic.out, cfi.out, tli.out, rmsea.out, srmr.out), collapse = ", ")
+      result1 <- paste(c(x2.out, bic.out, aic.out, cfi.out, tli.out, rmsea.out, srmr.out), collapse = ", ")
       result <- paste0(c(result, result1), collapse = "\n")
     }
     
@@ -152,8 +158,11 @@ semtext <- function(fit, x2=T, cfi=F, tli=T, rmsea=T, rmsea.ci=T, srmr=T, bic=F,
     if (!is.null(bic)) {
       BIC <- round(sapply(fitvalue, '[[', bic), 1)
     } else {BIC <- bic}
+    if (!is.null(aic)) {
+      AIC <- round(sapply(fitvalue, '[[', aic), 1)
+    } else {AIC <- aic}
     
-    result <- cbind(x2, BIC, CFI, TLI, RMSEA, SRMR)
+    result <- cbind(x2, BIC, AIC, CFI, TLI, RMSEA, SRMR)
     rownames(result) <- model.names
     if(clipboard == T) {
       cat("Output coppied to clipboard: \n\n")
@@ -161,16 +170,4 @@ semtext <- function(fit, x2=T, cfi=F, tli=T, rmsea=T, rmsea.ci=T, srmr=T, bic=F,
     }
     return(result)
   }
-}
-
-
-semtext2 <- function(fit, x2=T, cfi=F, tli=T, rmsea=T, rmsea.ci=T, srmr=T, bic=F,
-                     clipboard=T, type = "robust", srmr.type = "srmr", output="text",
-                     modelnames=NULL,
-                     sep = "\t", dec=",") {
-  ## only abbreviation function for type=robust
-  return(semtext(fit=fit, x2=x2, cfi=cfi, tli=tli, rmsea=rmsea, rmsea.ci=rmsea.ci, srmr=srmr, bic=bic,
-                 clipboard=clipboard, type = type, srmr.type = srmr.type, output=output,
-                 modelnames=modelnames,
-                 sep = sep, dec=dec))
 }
